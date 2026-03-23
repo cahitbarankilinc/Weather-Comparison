@@ -2,7 +2,8 @@
 <html><head><meta charset="utf-8"><title>Forecast Snapshot Tracker</title>
 <style>
 body{font-family:Arial,sans-serif;margin:20px;background:#111;color:#eee}
-select{margin-right:10px;padding:6px;background:#1c1c1c;color:#eee;border:1px solid #444}
+select,input,button{margin-right:10px;padding:6px;background:#1c1c1c;color:#eee;border:1px solid #444}
+button{cursor:pointer}
 label{margin-right:12px}
 table{border-collapse:collapse;width:100%;margin-top:16px}
 th,td{border:1px solid #444;padding:8px;text-align:left;vertical-align:top}
@@ -12,6 +13,9 @@ tr:nth-child(even){background:#181818}
 .warn{color:#f7b955}
 .card{background:#181818;border:1px solid #333;padding:12px;margin:12px 0;border-radius:8px}
 .small{font-size:12px;color:#aaa}
+.diff-cell{background:#7a4a12 !important}
+.range-cell{background:#1f6f3e !important}
+.hidden-row{display:none}
 </style></head><body>
 <h1>Forecast Snapshot Tracker</h1>
 <div class="meta" id="meta">Loading…</div>
@@ -19,6 +23,10 @@ tr:nth-child(even){background:#181818}
 <div class="card">
 <label>Station <select id="station"></select></label>
 <label>Target date <select id="targetDate"></select></label>
+<button id="unitToggle">°C / °F</button>
+<button id="diffToggle">Sadece Fark: Kapalı</button>
+<label>Min <input id="rangeMin" type="number" step="any" placeholder="min"></label>
+<label>Max <input id="rangeMax" type="number" step="any" placeholder="max"></label>
 </div>
 <table id="tbl"><thead></thead><tbody></tbody></table>
 <script>
@@ -36,8 +44,14 @@ async function main(){
   document.getElementById('submeta').textContent = `Target-date coverage: ${stats.first_target_date || '—'} → ${stats.last_target_date || '—'} | Snapshot coverage: ${stats.first_snapshot_time_utc || '—'} → ${stats.last_snapshot_time_utc || '—'}`;
   const stationSel = document.getElementById('station');
   const dateSel = document.getElementById('targetDate');
+  const unitToggle = document.getElementById('unitToggle');
+  const diffToggle = document.getElementById('diffToggle');
+  const rangeMin = document.getElementById('rangeMin');
+  const rangeMax = document.getElementById('rangeMax');
   const stations = data.stations.map(s=>({code:s.station_code,label:`${s.city_label} (${s.station_code})`, timezone:s.timezone}));
   const stationMap = Object.fromEntries(stations.map(s=>[s.code, s]));
+  let unit = 'c';
+  let onlyDiff = false;
   stations.forEach(s=>{ const o=document.createElement('option'); o.value=s.code; o.textContent=s.label; stationSel.appendChild(o); });
   function refreshDates(){
     const dates=[...new Set(data.rows.filter(r=>r.station_code===stationSel.value).map(r=>r.target_date_local))].sort().reverse();
@@ -47,6 +61,20 @@ async function main(){
     if(prev && dates.includes(prev)) dateSel.value=prev;
     render();
   }
+  function numericValue(row){
+    if(!row) return null;
+    return unit === 'c' ? row.forecast_daily_max_c : row.forecast_daily_max_f;
+  }
+  function inRange(value){
+    if(value === null || value === undefined) return false;
+    const minRaw = rangeMin.value.trim();
+    const maxRaw = rangeMax.value.trim();
+    const min = minRaw === '' ? null : Number(minRaw);
+    const max = maxRaw === '' ? null : Number(maxRaw);
+    if(min !== null && value < min) return false;
+    if(max !== null && value > max) return false;
+    return min !== null || max !== null;
+  }
   function render(){
     const station = stationMap[stationSel.value];
     const filtered = data.rows.filter(r=>r.station_code===stationSel.value && r.target_date_local===dateSel.value);
@@ -55,18 +83,35 @@ async function main(){
     const grouped = {};
     filtered.forEach(r=>{ grouped[r.snapshot_time_utc] ||= {}; grouped[r.snapshot_time_utc][r.source_id]=r; });
     const times = Object.keys(grouped).sort().reverse();
-    document.querySelector('#tbl thead').innerHTML = '<tr><th>Snapshot time (UTC)</th><th>Snapshot time (station local)</th>' + sourceIds.map(id=>`<th>${sourceNames[id]}<br><span class="small">max °C / °F</span></th>`).join('') + '</tr>';
+    const unitLabel = unit === 'c' ? 'max °C' : 'max °F';
+    document.querySelector('#tbl thead').innerHTML = '<tr><th>Snapshot time (UTC)</th><th>Snapshot time (station local)</th>' + sourceIds.map(id=>`<th>${sourceNames[id]}<br><span class="small">${unitLabel}</span></th>`).join('') + '</tr>';
+    let prevValues = null;
     document.querySelector('#tbl tbody').innerHTML = times.map(ts=>{
-      const cols = sourceIds.map(id=>{
+      const currentValues = sourceIds.map(id=> numericValue(grouped[ts][id]));
+      const changedFlags = currentValues.map((val, idx) => prevValues ? val !== prevValues[idx] : true);
+      const rowHasDiff = changedFlags.some(Boolean);
+      const hiddenClass = onlyDiff && !rowHasDiff ? 'hidden-row' : '';
+      const cols = sourceIds.map((id, idx)=>{
         const row = grouped[ts][id];
-        if(!row || row.forecast_daily_max_c===null || row.forecast_daily_max_c===undefined) return '<td class="warn">—</td>';
-        return `<td>${row.forecast_daily_max_c.toFixed(2)} / ${row.forecast_daily_max_f.toFixed(2)}</td>`;
+        const value = currentValues[idx];
+        let cls = '';
+        if(changedFlags[idx]) cls = 'diff-cell';
+        if(inRange(value)) cls = 'range-cell';
+        if(value === null || value === undefined) return '<td class="warn">—</td>';
+        return `<td class="${cls}">${value.toFixed(2)}</td>`;
       }).join('');
-      return `<tr><td>${ts}</td><td>${fmtLocal(ts, station.timezone)}</td>${cols}</tr>`;
+      prevValues = currentValues;
+      return `<tr class="${hiddenClass}"><td>${ts}</td><td>${fmtLocal(ts, station.timezone)}</td>${cols}</tr>`;
     }).join('');
+    unitToggle.textContent = unit === 'c' ? '°C / °F (Şu an: °C)' : '°C / °F (Şu an: °F)';
+    diffToggle.textContent = onlyDiff ? 'Sadece Fark: Açık' : 'Sadece Fark: Kapalı';
   }
   stationSel.addEventListener('change', refreshDates);
   dateSel.addEventListener('change', render);
+  unitToggle.addEventListener('click', () => { unit = unit === 'c' ? 'f' : 'c'; render(); });
+  diffToggle.addEventListener('click', () => { onlyDiff = !onlyDiff; render(); });
+  rangeMin.addEventListener('input', render);
+  rangeMax.addEventListener('input', render);
   if(stations.length){ stationSel.value=stations[0].code; refreshDates(); if(!dateSel.value){ render(); } }
 }
 main();
