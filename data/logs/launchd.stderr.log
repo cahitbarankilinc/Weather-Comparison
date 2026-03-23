@@ -1,0 +1,31 @@
+Traceback (most recent call last):
+  File "/Users/baran/.openclaw/workspace/noaa-polymarket-research/scripts/run_once.py", line 13, in <module>
+    from forecast_tracker.app import run_once
+  File "/Users/baran/.openclaw/workspace/noaa-polymarket-research/src/forecast_tracker/app.py", line 7, in <module>
+    from datetime import UTC, datetime
+ImportError: cannot import name 'UTC' from 'datetime' (/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/datetime.py)
+Traceback (most recent call last):
+  File "/Users/baran/.openclaw/workspace/noaa-polymarket-research/scripts/run_once.py", line 13, in <module>
+    from forecast_tracker.app import run_once
+  File "/Users/baran/.openclaw/workspace/noaa-polymarket-research/src/forecast_tracker/app.py", line 204, in <module>
+    e()
+    ^
+NameError: name 'e' is not defined
+Traceback (most recent call last):
+  File "/Users/baran/.openclaw/workspace/noaa-polymarket-research/scripts/run_once.py", line 15, in <module>
+    result = run_once()
+  File "/Users/baran/.openclaw/workspace/noaa-polymarket-research/src/forecast_tracker/app.py", line 156, in run_once
+    started_at = utc_now_iso()
+  File "/Users/baran/.openclaw/workspace/noaa-polymarket-research/src/forecast_tracker/app.py", line 18, in utc_now_iso
+    return datetime.now(UTC).replace(microsecond=0).isoformat()
+                        ^^^
+NameError: name 'UTC' is not defined
+Traceback (most recent call last):
+  File "/Users/baran/.openclaw/workspace/noaa-polymarket-research/scripts/run_once.py", line 15, in <module>
+    result = run_once()
+  File "/Users/baran/.openclaw/workspace/noaa-polymarket-research/src/forecast_tracker/app.py", line 156, in run_once
+    started_at = utc_now_iso()
+  File "/Users/baran/.openclaw/workspace/noaa-polymarket-research/src/forecast_tracker/app.py", line 18, in utc_now_iso
+    return datetime.now(UTC).replace(microsecond=0).isoformat()
+                        ^^^
+NameError: name 'UTC' is not defined

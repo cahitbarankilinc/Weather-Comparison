@@ -1,0 +1,73 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Forecast Snapshot Tracker</title>
+<style>
+body{font-family:Arial,sans-serif;margin:20px;background:#111;color:#eee}
+select{margin-right:10px;padding:6px;background:#1c1c1c;color:#eee;border:1px solid #444}
+label{margin-right:12px}
+table{border-collapse:collapse;width:100%;margin-top:16px}
+th,td{border:1px solid #444;padding:8px;text-align:left;vertical-align:top}
+th{background:#222;position:sticky;top:0}
+tr:nth-child(even){background:#181818}
+.meta,.submeta{color:#aaa;margin-bottom:10px}
+.warn{color:#f7b955}
+.card{background:#181818;border:1px solid #333;padding:12px;margin:12px 0;border-radius:8px}
+.small{font-size:12px;color:#aaa}
+</style></head><body>
+<h1>Forecast Snapshot Tracker</h1>
+<div class="meta" id="meta">Loading…</div>
+<div class="submeta" id="submeta"></div>
+<div class="card">
+<label>Station <select id="station"></select></label>
+<label>Target date <select id="targetDate"></select></label>
+</div>
+<table id="tbl"><thead></thead><tbody></tbody></table>
+<script>
+function fmtLocal(iso, tz){
+  try {
+    return new Date(iso).toLocaleString('en-GB', { timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  } catch (e) {
+    return iso;
+  }
+}
+async function main(){
+  const data = await fetch('./data.json').then(r=>r.json());
+  const stats = data.stats || {};
+  document.getElementById('meta').textContent = `Generated: ${data.generated_at_utc} | Snapshots: ${stats.snapshot_count ?? data.rows.length} | Stations: ${stats.station_count ?? data.stations.length} | Sources: ${stats.source_count ?? data.sources.length}`;
+  document.getElementById('submeta').textContent = `Target-date coverage: ${stats.first_target_date || '—'} → ${stats.last_target_date || '—'} | Snapshot coverage: ${stats.first_snapshot_time_utc || '—'} → ${stats.last_snapshot_time_utc || '—'}`;
+  const stationSel = document.getElementById('station');
+  const dateSel = document.getElementById('targetDate');
+  const stations = data.stations.map(s=>({code:s.station_code,label:`${s.city_label} (${s.station_code})`, timezone:s.timezone}));
+  const stationMap = Object.fromEntries(stations.map(s=>[s.code, s]));
+  stations.forEach(s=>{ const o=document.createElement('option'); o.value=s.code; o.textContent=s.label; stationSel.appendChild(o); });
+  function refreshDates(){
+    const dates=[...new Set(data.rows.filter(r=>r.station_code===stationSel.value).map(r=>r.target_date_local))].sort().reverse();
+    const prev=dateSel.value;
+    dateSel.innerHTML='';
+    dates.forEach(d=>{const o=document.createElement('option');o.value=d;o.textContent=d;dateSel.appendChild(o);});
+    if(prev && dates.includes(prev)) dateSel.value=prev;
+    render();
+  }
+  function render(){
+    const station = stationMap[stationSel.value];
+    const filtered = data.rows.filter(r=>r.station_code===stationSel.value && r.target_date_local===dateSel.value);
+    const sourceIds = data.sources.map(s=>s.source_id);
+    const sourceNames = Object.fromEntries(data.sources.map(s=>[s.source_id,s.display_name]));
+    const grouped = {};
+    filtered.forEach(r=>{ grouped[r.snapshot_time_utc] ||= {}; grouped[r.snapshot_time_utc][r.source_id]=r; });
+    const times = Object.keys(grouped).sort().reverse();
+    document.querySelector('#tbl thead').innerHTML = '<tr><th>Snapshot time (UTC)</th><th>Snapshot time (station local)</th>' + sourceIds.map(id=>`<th>${sourceNames[id]}<br><span class="small">max °C / °F</span></th>`).join('') + '</tr>';
+    document.querySelector('#tbl tbody').innerHTML = times.map(ts=>{
+      const cols = sourceIds.map(id=>{
+        const row = grouped[ts][id];
+        if(!row || row.forecast_daily_max_c===null || row.forecast_daily_max_c===undefined) return '<td class="warn">—</td>';
+        return `<td>${row.forecast_daily_max_c.toFixed(2)} / ${row.forecast_daily_max_f.toFixed(2)}</td>`;
+      }).join('');
+      return `<tr><td>${ts}</td><td>${fmtLocal(ts, station.timezone)}</td>${cols}</tr>`;
+    }).join('');
+  }
+  stationSel.addEventListener('change', refreshDates);
+  dateSel.addEventListener('change', render);
+  if(stations.length){ stationSel.value=stations[0].code; refreshDates(); if(!dateSel.value){ render(); } }
+}
+main();
+</script></body></html>

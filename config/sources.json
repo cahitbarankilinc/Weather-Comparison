@@ -1,0 +1,6 @@
+[
+  {"source_id":"nws_noaa","display_name":"NOAA","source_family":"official_public","enabled":true,"notes":"U.S.-only NWS point/hourly forecast"},
+  {"source_id":"gfs","display_name":"GFS","source_family":"model","enabled":true,"notes":"Global model via keyless point forecast wrapper"},
+  {"source_id":"ecmwf","display_name":"ECMWF","source_family":"model","enabled":true,"notes":"Global ECMWF IFS via keyless point forecast wrapper"},
+  {"source_id":"icon","display_name":"ICON","source_family":"model","enabled":true,"notes":"Global ICON via keyless point forecast wrapper"}
+]

@@ -1,0 +1,23 @@
+[
+  {"city_label":"Toronto","station_code":"CYYZ","source_url":"https://www.wunderground.com/history/daily/ca/mississauga/CYYZ","nws_points_api":"no","noaa_global_gfs":"yes","notes":"Canadian airport; not direct NWS point API coverage."},
+  {"city_label":"Atlanta","station_code":"KATL","source_url":"https://www.wunderground.com/history/daily/us/ga/atlanta/KATL","nws_points_api":"yes","noaa_global_gfs":"yes","notes":"Strong direct U.S. NWS candidate."},
+  {"city_label":"Chicago","station_code":"KORD","source_url":"https://www.wunderground.com/history/daily/us/il/chicago/KORD","nws_points_api":"yes","noaa_global_gfs":"yes","notes":"Strong direct U.S. NWS candidate."},
+  {"city_label":"Lucknow","station_code":"VILK","source_url":"https://www.wunderground.com/history/daily/in/lucknow/VILK","nws_points_api":"no","noaa_global_gfs":"yes","notes":"International; use GFS/global model route."},
+  {"city_label":"Ankara","station_code":"LTAC","source_url":"https://www.wunderground.com/history/daily/tr/%C3%A7ubuk/LTAC","nws_points_api":"no","noaa_global_gfs":"yes","notes":"Known repo example: Polymarket city label maps to Esenboğa-area airport reference."},
+  {"city_label":"Shanghai","station_code":"ZSPD","source_url":"https://www.wunderground.com/history/daily/cn/shanghai/ZSPD","nws_points_api":"no","noaa_global_gfs":"yes","notes":"International; use GFS/global model route."},
+  {"city_label":"Seoul","station_code":"RKSI","source_url":"https://www.wunderground.com/history/daily/kr/incheon/RKSI","nws_points_api":"no","noaa_global_gfs":"yes","notes":"International; use GFS/global model route."},
+  {"city_label":"London","station_code":"EGLC","source_url":"https://www.wunderground.com/history/daily/gb/london/EGLC","nws_points_api":"no","noaa_global_gfs":"yes","notes":"International; use GFS/global model route."},
+  {"city_label":"Singapore","station_code":"WSSS","source_url":"https://www.wunderground.com/history/daily/sg/singapore/WSSS","nws_points_api":"no","noaa_global_gfs":"yes","notes":"International; use GFS/global model route."},
+  {"city_label":"Dallas","station_code":"KDAL","source_url":"https://www.wunderground.com/history/daily/us/tx/dallas/KDAL","nws_points_api":"yes","noaa_global_gfs":"yes","notes":"Strong direct U.S. NWS candidate."},
+  {"city_label":"Wellington","station_code":"NZWN","source_url":"https://www.wunderground.com/history/daily/nz/wellington/NZWN","nws_points_api":"no","noaa_global_gfs":"yes","notes":"International; use GFS/global model route."},
+  {"city_label":"NYC","station_code":"KLGA","source_url":"https://www.wunderground.com/history/daily/us/ny/new-york-city/KLGA","nws_points_api":"yes","noaa_global_gfs":"yes","notes":"Strong direct U.S. NWS candidate."},
+  {"city_label":"Paris","station_code":"LFPG","source_url":"https://www.wunderground.com/history/daily/fr/paris/LFPG","nws_points_api":"no","noaa_global_gfs":"yes","notes":"International; use GFS/global model route."},
+  {"city_label":"Munich","station_code":"EDDM","source_url":"https://www.wunderground.com/history/daily/de/munich/EDDM","nws_points_api":"no","noaa_global_gfs":"yes","notes":"International; use GFS/global model route."},
+  {"city_label":"Seattle","station_code":"KSEA","source_url":"https://www.wunderground.com/history/daily/us/wa/seatac/KSEA","nws_points_api":"yes","noaa_global_gfs":"yes","notes":"Strong direct U.S. NWS candidate."},
+  {"city_label":"Tel Aviv","station_code":"LLBG","source_url":"https://www.wunderground.com/history/daily/il/tel-aviv/LLBG","nws_points_api":"no","noaa_global_gfs":"yes","notes":"International; use GFS/global model route."},
+  {"city_label":"Tokyo","station_code":"RJTT","source_url":"https://www.wunderground.com/history/daily/jp/tokyo/RJTT","nws_points_api":"no","noaa_global_gfs":"yes","notes":"International; use GFS/global model route."},
+  {"city_label":"Sao Paulo","station_code":"SBGR","source_url":"https://www.wunderground.com/history/daily/br/guarulhos/SBGR","nws_points_api":"no","noaa_global_gfs":"yes","notes":"International; use GFS/global model route."},
+  {"city_label":"Miami","station_code":"KMIA","source_url":"https://www.wunderground.com/history/daily/us/fl/miami/KMIA","nws_points_api":"yes","noaa_global_gfs":"yes","notes":"Strong direct U.S. NWS candidate."},
+  {"city_label":"Buenos Aires","station_code":"SAEZ","source_url":"https://www.wunderground.com/history/daily/ar/ezeiza/SAEZ","nws_points_api":"no","noaa_global_gfs":"yes","notes":"International; use GFS/global model route."},
+  {"city_label":"Taipei","station_code":"RCSS","source_url":"https://www.wunderground.com/history/daily/tw/taipei/RCSS","nws_points_api":"no","noaa_global_gfs":"yes","notes":"International; use GFS/global model route."}
+]
