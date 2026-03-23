@@ -46,3 +46,69 @@
   "inserted": 414,
   "errors": []
 }
+{
+  "run_id": 19,
+  "status": "ok",
+  "inserted": 414,
+  "errors": []
+}
+{
+  "run_id": 20,
+  "status": "ok",
+  "inserted": 414,
+  "errors": []
+}
+{
+  "run_id": 21,
+  "status": "ok",
+  "inserted": 414,
+  "errors": []
+}
+{
+  "run_id": 22,
+  "status": "partial",
+  "inserted": 396,
+  "errors": [
+    "LTAC/icon: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1081)>",
+    "ZSPD/gfs: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1081)>",
+    "ZSPD/ecmwf: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1081)>"
+  ]
+}
+{
+  "run_id": 23,
+  "status": "ok",
+  "inserted": 414,
+  "errors": []
+}
+{
+  "run_id": 24,
+  "status": "ok",
+  "inserted": 414,
+  "errors": []
+}
+{
+  "run_id": 25,
+  "status": "ok",
+  "inserted": 414,
+  "errors": []
+}
+{
+  "run_id": 27,
+  "status": "partial",
+  "inserted": 408,
+  "errors": [
+    "SAEZ/gfs: <urlopen error _ssl.c:1063: The handshake operation timed out>"
+  ]
+}
+{
+  "run_id": 28,
+  "status": "ok",
+  "inserted": 414,
+  "errors": []
+}
+{
+  "run_id": 30,
+  "status": "ok",
+  "inserted": 414,
+  "errors": []
+}

@@ -16,6 +16,13 @@ tr:nth-child(even){background:#181818}
 .diff-cell{background:#7a4a12 !important}
 .range-cell{background:#1f6f3e !important}
 .hidden-row{display:none}
+.info-wrap{display:inline-block;position:relative;margin-left:6px}
+.info-icon{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;border:1px solid #777;color:#ddd;font-size:11px;line-height:1;cursor:help}
+.tooltip{display:none;position:absolute;top:20px;left:0;background:#0f0f0f;border:1px solid #444;border-radius:8px;padding:10px;min-width:220px;max-width:320px;z-index:20;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+.info-wrap:hover .tooltip{display:block}
+.tooltip-title{font-weight:bold;margin-bottom:6px}
+.tooltip ul{margin:0;padding-left:18px}
+.tooltip li{margin:2px 0}
 </style></head><body>
 <h1>Forecast Snapshot Tracker</h1>
 <div class="meta" id="meta">Loading…</div>
@@ -48,8 +55,9 @@ async function main(){
   const diffToggle = document.getElementById('diffToggle');
   const rangeMin = document.getElementById('rangeMin');
   const rangeMax = document.getElementById('rangeMax');
-  const stations = data.stations.map(s=>({code:s.station_code,label:`${s.city_label} (${s.station_code})`, timezone:s.timezone}));
+  const stations = data.stations.map(s=>({code:s.station_code,label:`${s.city_label} (${s.station_code})`, city:s.city_label, timezone:s.timezone, country:s.country}));
   const stationMap = Object.fromEntries(stations.map(s=>[s.code, s]));
+  const noaaStations = stations.filter(s => s.country === 'US').map(s => `${s.city} (${s.code})`);
   let unit = 'c';
   let onlyDiff = false;
   stations.forEach(s=>{ const o=document.createElement('option'); o.value=s.code; o.textContent=s.label; stationSel.appendChild(o); });
@@ -84,20 +92,33 @@ async function main(){
     filtered.forEach(r=>{ grouped[r.snapshot_time_utc] ||= {}; grouped[r.snapshot_time_utc][r.source_id]=r; });
     const times = Object.keys(grouped).sort().reverse();
     const unitLabel = unit === 'c' ? 'max °C' : 'max °F';
-    document.querySelector('#tbl thead').innerHTML = '<tr><th>Snapshot time (UTC)</th><th>Snapshot time (station local)</th>' + sourceIds.map(id=>`<th>${sourceNames[id]}<br><span class="small">${unitLabel}</span></th>`).join('') + '</tr>';
+    document.querySelector('#tbl thead').innerHTML = '<tr><th>Snapshot time (UTC)</th><th>Snapshot time (station local)</th>' + sourceIds.map(id=>{
+      const name = sourceNames[id];
+      if (id === 'nws_noaa') {
+        const items = noaaStations.map(x => `<li>${x}</li>`).join('');
+        return `<th>${name}<span class="info-wrap"><span class="info-icon">i</span><span class="tooltip"><div class="tooltip-title">NOAA şu şehir/stationlar için kullanılıyor:</div><ul>${items}</ul></span></span><br><span class="small">${unitLabel}</span></th>`;
+      }
+      return `<th>${name}<br><span class="small">${unitLabel}</span></th>`;
+    }).join('') + '</tr>';
     let prevValues = null;
     document.querySelector('#tbl tbody').innerHTML = times.map(ts=>{
       const currentValues = sourceIds.map(id=> numericValue(grouped[ts][id]));
-      const changedFlags = currentValues.map((val, idx) => prevValues ? val !== prevValues[idx] : true);
+      const changedFlags = currentValues.map((val, idx) => {
+        if (val === null || val === undefined) return false;
+        if (!prevValues) return false;
+        const prev = prevValues[idx];
+        if (prev === null || prev === undefined) return false;
+        return val !== prev;
+      });
       const rowHasDiff = changedFlags.some(Boolean);
-      const hiddenClass = onlyDiff && !rowHasDiff ? 'hidden-row' : '';
+      const hiddenClass = onlyDiff && prevValues && !rowHasDiff ? 'hidden-row' : '';
       const cols = sourceIds.map((id, idx)=>{
         const row = grouped[ts][id];
         const value = currentValues[idx];
+        if(value === null || value === undefined) return '<td class="warn">—</td>';
         let cls = '';
         if(changedFlags[idx]) cls = 'diff-cell';
         if(inRange(value)) cls = 'range-cell';
-        if(value === null || value === undefined) return '<td class="warn">—</td>';
         return `<td class="${cls}">${value.toFixed(2)}</td>`;
       }).join('');
       prevValues = currentValues;
